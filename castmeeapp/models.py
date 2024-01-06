@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 gender_choice = (("male","male"),("female","female"),("other","other"))
 
 
-class Talant_user_details(models.Model):
+class Talent_user_details(models.Model):
     user_id = models.ForeignKey(User, on_delete=models.CASCADE)
     guardian_phone = models.CharField(max_length=20, null=True, blank=True)
     personal_whatsapp_number = models.CharField(max_length=20, null=True, blank=True)
@@ -41,11 +41,11 @@ class Language_master(models.Model):
 
 
 class Talent_user_languages(models.Model):
-    talent_user = models.ForeignKey(Talant_user_details, on_delete=models.CASCADE)
+    talent_user = models.ForeignKey(Talent_user_details, on_delete=models.CASCADE)
     language = models.ManyToManyField(Language_master)   
 
 class Talent_user_skills(models.Model):
-    talent_user = models.ForeignKey(Talant_user_details,on_delete=models.CASCADE)
+    talent_user = models.ForeignKey(Talent_user_details,on_delete=models.CASCADE)
     skills = models.ManyToManyField(Skills_master)
 
 Recruiter_choices = (("freelancer","freelancer"),("company","company"))
@@ -69,18 +69,18 @@ class freelance_recruiter_details(models.Model):
     membership_name = models.CharField(max_length=200)
     membership_id = models.CharField(max_length=100)
     reference_name = models.CharField(max_length=200)
-    reference_contact_no = models.CharField(max_length=20)
-    project_name = models.CharField(max_length=200)
-    project_type = models.ForeignKey(Project_type_master, on_delete=models.DO_NOTHING)
-    project_location = models.CharField(max_length=100)
+    reference_contact_no = models.CharField(max_length=20,null=True, blank=True)
+    project_name = models.CharField(max_length=200,null=True, blank=True)
+    project_type = models.ForeignKey(Project_type_master, on_delete=models.DO_NOTHING,null=True, blank=True)
+    project_location = models.CharField(max_length=100,null=True, blank=True)
 
 
 class company_recruiter_details(models.Model):
     talent_recruiter_id = models.ForeignKey(Talent_recruiter_details, on_delete=models.CASCADE)
     company_name = models.CharField(max_length=200)
     company_reg_no = models.CharField(max_length=100)
-    company_address = models.TextField(max_length=200)
-    tid = models.CharField(max_length=100, help_text='tax identification number')
+    company_address = models.TextField(max_length=200,null=True, blank=True)
+    tid = models.CharField(max_length=100, help_text='tax identification number',null=True, blank=True)
 
 
 

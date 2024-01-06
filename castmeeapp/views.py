@@ -4,9 +4,10 @@ from django.contrib.auth.models import User
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from .serializers import Talent_user_registration_serializer
+from .serializers import *
 from django.contrib.auth import authenticate
 from rest_framework_simplejwt.tokens import RefreshToken
+from .models import *
 
 def generate_random_password(length=12):
     characters = string.ascii_letters + string.digits + string.punctuation
@@ -34,11 +35,9 @@ class Talent_user_registration_api(APIView):
             return Response({"message": "Registration successful", "success": True}, status=status.HTTP_201_CREATED)
         return Response({"errors": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
-    def get(self, request):
-        request.data['user_id']
-    
+       
 
-class TalentUserLogin(APIView):
+class TalentLogin(APIView):
     def post(self, request):
         username = request.data.get('username')
         password = request.data.get('password')
@@ -57,6 +56,31 @@ class TalentUserLogin(APIView):
             return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
         
 
+
+class Get_talent_user_details_API(APIView):
+    def get(self, request):
+        queryset = Talent_user_details.objects.filter(request.data['user_id'])
+        serializer = Get_talent_user_details_serializer(queryset, many=True)
+        return Response({"data":serializer.data}, status= status.HTTP_200_OK) 
+    
+class TalentRecruiterRegistrationAPI(APIView):
+    def post(self, request):
+        data = request.data
+        serializer_recruiter = Talent_recruiter_registration_seriailizer(data=data.get('recruiter_details'))
+        serializer_recruiter_freelancer = Talent_recruiter_registration_seriailizer(data=data.get('recruiter_freelancer_details'))
+        serializer_company_recruiter = Talent_recruiter_registration_seriailizer(data=data.get('recruiter_company_details'))
+
+        if (
+            serializer_recruiter.is_valid() and
+            serializer_recruiter_freelancer.is_valid() and
+            serializer_company_recruiter.is_valid()
+        ):
+            serializer_recruiter.save()
+            serializer_company_recruiter.save()
+            serializer_recruiter_freelancer.save()
+            return Response({"message": "registration successful"}, status=status.HTTP_201_CREATED)
+
+        return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
 
