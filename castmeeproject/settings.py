@@ -27,7 +27,7 @@ SECRET_KEY = 'django-insecure-*mfg@^t7qcn_7%3i$8%xc@6trad2=clp9$xmh3u7tq160)u^t-
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['king-prawn-app-2nulh.ondigitalocean.app']
+ALLOWED_HOSTS = ['king-prawn-app-2nulh.ondigitalocean.app','castmeeapp.live']
 
 
 REST_FRAMEWORK = {
