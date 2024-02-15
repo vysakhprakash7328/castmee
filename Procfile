@@ -1,1 +1,1 @@
-web: gunicorn castmeeproject.wsgi --log-file -
+web: gunicorn castmeeproject.wsgi
