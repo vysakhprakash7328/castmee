@@ -8,36 +8,50 @@ from .serializers import *
 from django.contrib.auth import authenticate
 from rest_framework_simplejwt.tokens import RefreshToken
 from .models import *
+from django.apps import apps
+
 
 def generate_random_password(length=12):
     characters = string.ascii_letters + string.digits + string.punctuation
     password = ''.join(secrets.choice(characters) for _ in range(length))
     return password
 
-class Talent_user_registration_api(APIView):
+class Talent_user_registration_API(APIView):
     def post(self, request):
         data = request.data
-        user = User()
+
         random_password = generate_random_password()
         print("Random Password:", random_password)
 
-        user.first_name = data['name']
-        user.email = data['email']
+        user = User(
+            first_name=data['name'],
+            email=data['email'],
+        )
+
         user.set_password(random_password)
 
-        data.pop('name')
-        data.pop('email')
+        user.save()
+
+        user_details = User.objects.get(email=data['email'])
+
+
+        data['user_id'] = user_details.id
 
         serializer = Talent_user_registration_serializer(data=data)
-        if serializer.is_valid():
-            user.save()
-            serializer.save()
-            return Response({"message": "Registration successful", "success": True}, status=status.HTTP_201_CREATED)
-        return Response({"errors": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
+        if serializer.is_valid():
+            serializer.save()
+
+            return Response({
+                "message": "Registration successful",
+                "success": True,
+                "password": random_password,
+            }, status=status.HTTP_201_CREATED)
+
+        return Response({"errors": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
        
 
-class TalentLogin(APIView):
+class TalentLogin_API(APIView):
     def post(self, request):
         username = request.data.get('username')
         password = request.data.get('password')
@@ -81,6 +95,15 @@ class TalentRecruiterRegistrationAPI(APIView):
             return Response({"message": "registration successful"}, status=status.HTTP_201_CREATED)
 
         return Response(status=status.HTTP_400_BAD_REQUEST)
+    
+
+class Find_a_talent_API(APIView):
+    def get(self, request):
+        data = request.data
+        model_class = apps.get_model('castmeeapp',data['model'])
+    
+
+    
 
 
 

@@ -1,0 +1,1 @@
+web: gunicorn castmeeproject.wsgi --log-file -
