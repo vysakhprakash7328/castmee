@@ -35,9 +35,14 @@ class Talent_user_details(models.Model):
 
 class Skills_master(models.Model):
     skill = models.CharField(max_length=100)
+    def __str__(self):
+        return self.skill
 
 class Language_master(models.Model):
     language = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.language
 
 
 class Talent_user_languages(models.Model):
@@ -53,9 +58,7 @@ Recruiter_choices = (("freelancer","freelancer"),("company","company"))
 
 class Talent_recruiter_details(models.Model):
     recruiter_id = models.ForeignKey(User, on_delete=models.CASCADE)
-    recruiter_name = models.CharField(max_length=100)
     recruiter_phone = models.CharField(max_length=20)
-    recruiter_email = models.EmailField()
     freelancer_or_company = models.CharField(choices=Recruiter_choices, max_length=50)
 
 class Project_type_master(models.Model):

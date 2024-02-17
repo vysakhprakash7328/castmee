@@ -30,6 +30,15 @@ class Talent_recruiter_company_details_serializer(serializers.ModelSerializer):
         model = company_recruiter_details
         fields = '__all__'
 
+class Talent_user_language_serializer(serializers.ModelSerializer):
+    class Meta:
+        model = Talent_user_languages
+        fields = '__all__'
+class Talent_user_skills_serializer(serializers.ModelSerializer):
+    class Meta:
+        model = Talent_user_skills
+        fields = '__all__'
+
 
 
 
