@@ -11,6 +11,7 @@ from .models import *
 from django.apps import apps
 from django.db import IntegrityError 
 from rest_framework.decorators import api_view
+from rest_framework.permissions import IsAuthenticated
 
 
 def generate_random_password(length=12):
@@ -249,6 +250,7 @@ class UpdationAPI(APIView):
     '''
     Api for updating data of both recruiter & freelancer according to usertype
     '''
+    permission_classes = [IsAuthenticated]
     def post(self,request):
         data = request.data
         user_type = data.pop("type",None)
@@ -326,6 +328,7 @@ class UpdationAPI(APIView):
 
 
 class FilterAPI(APIView):
+    permission_classes = [IsAuthenticated]
     def post(self,request):
         condition = request.data
         if 'username' in condition.keys():
