@@ -10,6 +10,8 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from .models import *
 from django.apps import apps
 from django.db import IntegrityError 
+from rest_framework.decorators import api_view
+
 
 def generate_random_password(length=12):
     characters = string.ascii_letters + string.digits + string.punctuation
@@ -97,27 +99,51 @@ class Talent_user_registration_API(APIView):
 
 class Login_API(APIView):
     def post(self, request):
+        ''''
+        Method for login both talent user and recruiter
+        '''
         username = request.data.get('username')
         password = request.data.get('password')
+        type_of_user = request.data.get("type")
 
         user = authenticate(request, username=username, password=password)
 
         if user is not None:
             refresh = RefreshToken.for_user(user)
+            access_token =str(refresh.access_token)
+            data ={
+                 "access_token":access_token,
+                 "refresh_token":str(refresh)
+                }
+            if type_of_user == 'talent_user':
+                try:
+                    talent_user_data =Talent_user_details.objects.get(user_id = user)
 
-            if Talent_user_details.objects.filter(user_id = User.objects.get(id = user.id)):
-                type = 'talent_user'
-            else:
-                type = 'talent_recruiter'
+                except Talent_user_details.DoesNotExist:
+                    return Response({
+                        "detail":"Are your sure a Talent user ? Please check",
+                        "success":False
+                    },status=status.HTTP_406_NOT_ACCEPTABLE
+                    )
+                data['user_data']= Get_talent_user_details_serializer(talent_user_data).data
 
+            else :
+                try :
+                    talent_recruiter_data = Talent_recruiter_details.objects.get(recruiter_id = user)
+
+                except Talent_recruiter_details.DoesNotExist:
+                    return Response({
+                        "detail":"Are your sure a Recruiter ? Please check",
+                        "success":False
+                    },status=status.HTTP_406_NOT_ACCEPTABLE
+                    )
+                data['user_data'] = Talent_recruiter_registration_seriailizer(talent_recruiter_data).data
+                
             return Response({
-                'user_id':user.id,
-                'username':User.objects.get(id = user.id).username,
-                'name':User.objects.get(id = user.id).first_name,
-                'type':type,
-                'access_token': str(refresh.access_token),
-                'refresh_token': str(refresh),
-            }, status=status.HTTP_200_OK)
+                "detail":data,"success":True
+            },status=status.HTTP_200_OK
+            )
+
         else:
             return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
         
@@ -128,61 +154,214 @@ class Get_talent_user_details_API(APIView):
         queryset = Talent_user_details.objects.filter(request.data['user_id'])
         serializer = Get_talent_user_details_serializer(queryset, many=True)
         return Response({"data":serializer.data}, status= status.HTTP_200_OK) 
-    
 
-class TalentRecruiterRegistrationAPI(APIView):
+
+class RegistrationAPI(APIView):
     def post(self, request):
+        '''
+        Api for registering both recruiter and talent
+        '''
         data = request.data
-        first_name=data['recruiter_details'].pop('recruiter_name'),
-        email=data['recruiter_details'].pop('recruiter_email'),
-        username = data['recruiter_details'].pop('recruiter_username')
-        try:
-            user = User(
-                first_name=first_name,
-                email=email,
-                username=username
+        user_type = data.pop('type',None)
+        if user_type is None:
+            return Response({
+                "detail":"Please give user type",
+                "success":False
+            },status=status.HTTP_406_NOT_ACCEPTABLE)
+
+        username = data["username"]
+        if User.objects.filter(username=username).exists():
+            return Response({
+                "detail":"Username already taken ,please choose different one",
+                "success":False
+            },status=status.HTTP_406_NOT_ACCEPTABLE
             )
-            password = data['recruiter_details'].pop('recruiter_password')
-            user.set_password(password)
-            user.save()
-        except IntegrityError:
-            return Response("The username '{}' is already taken. Please choose a different username.".format(username))
-        user_details = User.objects.get(username=username)
-        data['recruiter_details']['recruiter_id'] = user_details.id
-
-        serializer_recruiter = Talent_recruiter_registration_seriailizer(data=data.get('recruiter_details'))
-        if serializer_recruiter.is_valid():
-            serializer_recruiter.save()
-            talent_recruiter_id = Talent_recruiter_details.objects.get(recruiter_id_id = user_details.id).id
-            if 'freelancer_details' in data:
-                data['freelancer_details']['talent_recruiter_id']= talent_recruiter_id
-                serializer_recruiter_freelancer = Talent_recruiter_freelancer_details_serializer(data=data.get('freelancer_details'))
-                if serializer_recruiter_freelancer.is_valid():
-                    serializer_recruiter_freelancer.save()
-                else:
-                    serializer_recruiter_freelancer.errors()
-            elif 'company_details' in data:
-                data['company_details']['talent_recruiter_id']= talent_recruiter_id
-                serializer_recruiter_company = Talent_recruiter_company_details_serializer(data=data.get('company_details'))
-                if serializer_recruiter_company.is_valid():
-                    serializer_recruiter_company.save()
-                else:
-                    serializer_recruiter_company.errors()
-
-
-            return Response({"message": "registration successful"}, status=status.HTTP_201_CREATED)
-        else:
-            return Response(serializer_recruiter.errors())
+        email = data['email']
+        if User.objects.filter(email=email).exists():
+            return Response({
+                "detail":"Already registered email,exisisting user ?",
+                "success":False
+            },status=status.HTTP_406_NOT_ACCEPTABLE
+            )
         
+        password=data.pop('password',None)
+        if password is None:
+            return Response({
+                "detail":"Please provide password",
+                "success":False
+            },status=status.HTTP_406_NOT_ACCEPTABLE
+            )
+        confirm_password = data.pop('confirm_password',None)
+        if password != confirm_password:
+            return Response({
+                "detail":"Password miss match",
+                "success":False
+            },status=status.HTTP_406_NOT_ACCEPTABLE
+            )
+
+        user= User.objects.create(
+            username = username,
+            email = email,
+            first_name = data.pop('first_name')
+        )
+        user.set_password(password)
+        user.save()
+
+        if user_type == 'talent_user':
+            Talent_user_details.objects.create(
+                user_id = user,
+                age =  data.get('age',None),
+                address = data.get('address',None),
+                gender = data.get('gender',None),
+
+            )
+        else :
+            Talent_recruiter_details.objects.create(
+                recruiter_id = user,
+                recruiter_phone = data.get('recruiter_phone'),
+                freelancer_or_company = data.get('freelancer_or_company')
+            )
+        
+        return Response({
+            "detail":"Successfully Registered,Please verify your profile ","success":True
+        },status=status.HTTP_201_CREATED
+        )
 
 
-
-
+@api_view(["GET"])
+def get_dropdowns(request):
+    '''
+    api for giving all master dropdowns
+    '''
+    data={
+    "skill_master_dropdown" : {obj.id:obj.skill for obj in Skills_master.objects.all()},
+    "language_master_dropdown" : {obj.id:obj.language for obj in Language_master.objects.all()},
+    "project_type_dropdown":{obj.id:obj.project_type for obj in Project_type_master.objects.all()}
+    }
+    return Response({
+        "detail":data,
+        "success":True
+    },status=status.HTTP_200_OK
+    )
     
 
+class UpdationAPI(APIView):
+    '''
+    Api for updating data of both recruiter & freelancer according to usertype
+    '''
+    def post(self,request):
+        data = request.data
+        user_type = data.pop("type",None)
+        if user_type is None:
+            return Response({
+                "detail":"Please give user type",
+                "success":False
+            },status=status.HTTP_406_NOT_ACCEPTABLE)
+        
+        user_id = data.pop('user_id',None)
+        try:
+            user = User.objects.get(id=user_id)
+        except User.DoesNotExist:
+            return Response({
+                "detail":"User not found,please register",
+                "success":False
+            },status=status.HTTP_406_NOT_ACCEPTABLE
+            )
+        if user_type == 'talent_user':
+            language = data.pop("language",[])
+            language = [Language_master.objects.get(id = x) for x in language]
+            skills = data.pop("skills",[])
+            skills = [Skills_master.objects.get(id = x) for x in skills]
 
+            talent_user = Talent_user_details.objects.get(user_id =user)
+            language_instance,created = Talent_user_languages.objects.get_or_create(talent_user=talent_user)
+            language_instance.language.add(*language)
+            skill_instance,created = Talent_user_skills.objects.get_or_create(talent_user=talent_user)
+            skill_instance.skills.add(*skills)
 
+            seria = Talent_user_registration_serializer(
+                talent_user,
+                data = data,
+                partial = True
+            )
+            if seria.is_valid():
+                seria.save()
+                return Response({
+                    "detail":"Successfully Updated data",
+                    "success":True
+                },status=status.HTTP_200_OK
+                )
+            else:
+                return Response({
+                    "detail":seria.errors,"success":False
+                },status=status.HTTP_400_BAD_REQUEST
+                )
+        else :
+            recruiter = Talent_recruiter_details.objects.get(recruiter_id= user)
+            if "recruiter_phone" in data.keys():
+                recruiter.recruiter_phone = data.pop('recruiter_phone')
+            if 'freelancer_or_company' in data.keys():
+                recruiter.freelancer_or_company = data.pop('freelancer_or_company')
+
+            recruiter.save()
+            data["talent_recruiter_id"]=recruiter.id
+            freelancer_or_company = recruiter.freelancer_or_company
+            current_serializer = Talent_recruiter_freelancer_details_serializer
+            if freelancer_or_company=='company':
+                current_serializer = Talent_recruiter_company_details_serializer
             
+            seria = current_serializer(data=data)
+            if seria.is_valid():
+                seria.save()
+                return Response({
+                    "detail":"Successfully Updated data",
+                    "success":True
+                },status=status.HTTP_200_OK
+                )
+            else:
+                return Response({
+                    "detail":seria.errors,"success":False
+                },status=status.HTTP_400_BAD_REQUEST
+                )
+
+
+class FilterAPI(APIView):
+    def post(self,request):
+        condition = request.data
+        if 'username' in condition.keys():
+            condition["user_id__username"]= condition.pop("username")
+        if 'first_name' in condition.keys():
+            condition['user_id__first_name']=condition.pop('first_name')
+        if "email" in condition.keys():
+            condition['user_id__email']=condition.pop('email')
+
+        data = Talent_user_details.objects.filter(**condition)
+        seria = Get_talent_user_details_serializer(data,many=True)
+        return Response({
+            "detail":seria.data,'success':True
+        },status=status.HTTP_200_OK
+        )
+
+    def get(self,request):
+        '''
+        get a single talent full data based user id
+        '''
+        user_id = request.query_params.get('user_id')
+        try:
+            user = User.objects.get(id = user_id)
+        except User.DoesNotExist:
+            return Response({
+                "detail":"User not found",
+                "success":False
+            },status=status.HTTP_404_NOT_FOUND
+            )
+        talent_user = Talent_user_details.objects.get(user_id=user)
+        seria = Get_talent_user_details_serializer(talent_user)
+        return Response({
+            "detail":seria.data,'success':True
+        },status=status.HTTP_200_OK
+        )
+
 
 
 
