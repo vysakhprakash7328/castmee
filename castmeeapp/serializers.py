@@ -9,13 +9,26 @@ class Talent_user_registration_serializer(serializers.ModelSerializer):
 
 
 class Get_talent_user_details_serializer(serializers.ModelSerializer):
-    name = serializers.ReadOnlyField(source = 'user_id.firstname')
+    '''
+    Talent user serializer with all data
+    '''
+    name = serializers.ReadOnlyField(source = 'user_id.first_name')
+    user_id= serializers.ReadOnlyField(source = 'user_id.id')
+    username = serializers.ReadOnlyField(source='user_id.username')
+    email = serializers.ReadOnlyField(source='user_id.email')
+
     
     class Meta:
         model = Talent_user_details
         fields = '__all__'
 
 class Talent_recruiter_registration_seriailizer(serializers.ModelSerializer):
+    '''
+    Talent recruiter details with all data
+    '''
+    name =  serializers.ReadOnlyField(source = 'recruiter_id.first_name')
+    user_id = serializers.ReadOnlyField(source = 'recruiter_id.id')
+    username = serializers.ReadOnlyField(source = 'recruiter_id.username')
     class Meta:
         model = Talent_recruiter_details
         fields = '__all__'

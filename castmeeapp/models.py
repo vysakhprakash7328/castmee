@@ -6,10 +6,10 @@ gender_choice = (("male","male"),("female","female"),("other","other"))
 
 
 class Talent_user_details(models.Model):
-    user_id = models.ForeignKey(User, on_delete=models.CASCADE)
+    user_id = models.OneToOneField(User, on_delete=models.CASCADE)
     guardian_phone = models.CharField(max_length=20, null=True, blank=True)
     personal_whatsapp_number = models.CharField(max_length=20, null=True, blank=True)
-    date_of_birth = models.DateField()
+    date_of_birth = models.DateField(null=True,blank = True)
     age = models.IntegerField()
     gender = models.CharField(choices=gender_choice,max_length=20)
     address = models.TextField(max_length=250, null=True, blank=True)
@@ -29,8 +29,12 @@ class Talent_user_details(models.Model):
     created_time = models.DateTimeField(auto_now_add=True)
     referer_name = models.CharField(max_length=100, null=True, blank=True)
     mail_merge_status = models.BooleanField(default=False, null=True, blank=True)
-    task_owner = models.CharField(max_length=200)
+    task_owner = models.CharField(max_length=200,null=True,blank=True)
     offline_added_time = models.DateTimeField( null=True, blank=True)
+    email_verification = models.CharField(max_length = 10,default = 'pending')
+
+    def __str__(self):
+        return self.user_id.username
 
 
 class Skills_master(models.Model):
@@ -46,19 +50,19 @@ class Language_master(models.Model):
 
 
 class Talent_user_languages(models.Model):
-    talent_user = models.ForeignKey(Talent_user_details, on_delete=models.CASCADE)
+    talent_user = models.OneToOneField(Talent_user_details, on_delete=models.CASCADE)
     language = models.ManyToManyField(Language_master)   
 
 class Talent_user_skills(models.Model):
-    talent_user = models.ForeignKey(Talent_user_details,on_delete=models.CASCADE)
+    talent_user = models.OneToOneField(Talent_user_details,on_delete=models.CASCADE)
     skills = models.ManyToManyField(Skills_master)
 
 Recruiter_choices = (("freelancer","freelancer"),("company","company"))
 
 
 class Talent_recruiter_details(models.Model):
-    recruiter_id = models.ForeignKey(User, on_delete=models.CASCADE)
-    recruiter_phone = models.CharField(max_length=20)
+    recruiter_id = models.OneToOneField(User, on_delete=models.CASCADE)
+    recruiter_phone = models.CharField(max_length=20,null=True,blank =True)
     freelancer_or_company = models.CharField(choices=Recruiter_choices, max_length=50)
 
 class Project_type_master(models.Model):
