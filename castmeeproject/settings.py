@@ -87,10 +87,10 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'cast_db',
-        'USER':'postgres', 
-        'PASSWORD': 'admin',
-        'HOST': 'localhost',
-        'PORT': 5432,
+        'USER':'doadmin', 
+        'PASSWORD': 'AVNS_ke_3uEtGiYLbSaTJUNJ',
+        'HOST': 'castmee-do-user-15649877-0.c.db.ondigitalocean.com',
+        'PORT': 25060,
     }
 }
 
