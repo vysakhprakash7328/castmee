@@ -22,7 +22,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-*mfg@^t7qcn_7%3i$8%xc@6trad2=clp9$xmh3u7tq160)u^t-'
+SECRET_KEY = os.environ.get('SECRET_KEY')
+
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -86,10 +87,10 @@ WSGI_APPLICATION = 'castmeeproject.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'cast_db',
-        'USER':'doadmin', 
-        'PASSWORD': 'AVNS_ke_3uEtGiYLbSaTJUNJ',
-        'HOST': 'castmee-do-user-15649877-0.c.db.ondigitalocean.com',
+        'NAME': os.environ.get('DATABASE_NAME'),
+        'USER':os.environ.get('DATABASE_USER'),
+        'PASSWORD': os.environ.get('PASSWORD'),
+        'HOST': os.environ.get('HOST'),
         'PORT': 25060,
     }
 }
