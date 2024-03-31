@@ -1,6 +1,97 @@
 from django.contrib import admin
 from .models import *
-# Register your models here.
-admin.site.register(Skills_master)
-admin.site.register(Language_master)
-admin.site.register(Project_type_master)
+
+
+class StateAdmin(admin.ModelAdmin):
+    search_fields = ['name']
+
+
+class DistrictAdmin(admin.ModelAdmin):
+    search_fields = ['name','state']
+
+
+class CityAdmin(admin.ModelAdmin):
+    search_fields = ['name']
+
+
+class LanguageAdmin(admin.ModelAdmin):
+    search_fields = ['name']
+
+
+class SkillsAdmin(admin.ModelAdmin):
+    search_fields = ['name']
+
+
+class ConsiderMeAdmin(admin.ModelAdmin):
+    search_fields = ['name']
+
+
+class AvailableForAdmin(admin.ModelAdmin):
+    search_fields = ['name']
+
+
+class PreferredGeneAdmin(admin.ModelAdmin):
+    search_fields = ['name']
+
+
+class InterestAdmin(admin.ModelAdmin):
+    search_fields = ['name']
+
+
+class ProjectTypeAdmin(admin.ModelAdmin):
+    search_fields = ['name']
+
+
+class HairTypeAdmin(admin.ModelAdmin):
+    search_fields = ['name']
+
+
+class HairColourAdmin(admin.ModelAdmin):
+    search_fields = ['name']
+
+
+class BodyTypeAdmin(admin.ModelAdmin):
+    search_fields = ['name']
+
+
+class EyeColorAdmin(admin.ModelAdmin):
+    search_fields = ['name']
+
+
+class SkinColourAdmin(admin.ModelAdmin):
+    search_fields = ['name']
+
+
+class ArtistExtendedAdmin(admin.StackedInline):
+    model = ArtistExtended
+
+
+class ArtistAdmin(admin.ModelAdmin):
+    inlines = [ArtistExtendedAdmin]
+
+
+class ProducerExtendedAdmin(admin.StackedInline):
+    model = ProducerExtended
+
+
+class ProducerAdmin(admin.ModelAdmin):
+    inlines = [ProducerExtendedAdmin]
+
+
+admin.site.register(State,StateAdmin)
+admin.site.register(District,DistrictAdmin)
+admin.site.register(City,CityAdmin)
+admin.site.register(Language,LanguageAdmin)
+admin.site.register(Skills,SkillsAdmin)
+admin.site.register(ConsiderMe,ConsiderMeAdmin)
+admin.site.register(AvailableFor,AvailableForAdmin)
+admin.site.register(PreferredGene,PreferredGeneAdmin)
+admin.site.register(Interest,InterestAdmin)
+admin.site.register(ProjectType,ProjectTypeAdmin)
+admin.site.register(HairType,HairTypeAdmin)
+admin.site.register(HairColour,HairColourAdmin)
+admin.site.register(BodyType,BodyTypeAdmin)
+admin.site.register(EyeColor,EyeColorAdmin)
+admin.site.register(SkinColour,SkinColourAdmin)
+admin.site.register(Artist,ArtistAdmin)
+admin.site.register(Producer,ProducerAdmin)
