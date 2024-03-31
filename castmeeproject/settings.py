@@ -31,7 +31,7 @@ SECRET_KEY = os.environ.get('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['king-prawn-app-2nulh.ondigitalocean.app','castmeeapp.live','127.0.0.1']
+ALLOWED_HOSTS = ['castmeeapp.live','127.0.0.1','orca-app-rqa8f.ondigitalocean.app']
 
 
 REST_FRAMEWORK = {
