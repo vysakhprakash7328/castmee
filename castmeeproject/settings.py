@@ -52,7 +52,6 @@ INSTALLED_APPS = [
     'castmeeapp',
     'rest_framework_simplejwt',
     'corsheaders',
-    'drf_yasg',
 
 ]
 

@@ -10,7 +10,6 @@ django-cors-headers==4.3.1
 django-rest-framework==0.1.0
 djangorestframework==3.14.0
 djangorestframework-simplejwt==5.3.1
-drf-yasg==1.21.7
 firebase-admin==6.3.0
 google-api-core==2.15.0
 google-api-python-client==2.112.0
