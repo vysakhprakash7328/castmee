@@ -46,7 +46,7 @@ class HairTypeAdmin(admin.ModelAdmin):
     search_fields = ['name']
 
 
-class HairColourAdmin(admin.ModelAdmin):
+class HairColorAdmin(admin.ModelAdmin):
     search_fields = ['name']
 
 
@@ -58,7 +58,7 @@ class EyeColorAdmin(admin.ModelAdmin):
     search_fields = ['name']
 
 
-class SkinColourAdmin(admin.ModelAdmin):
+class SkinColorAdmin(admin.ModelAdmin):
     search_fields = ['name']
 
 
@@ -78,6 +78,9 @@ class ProducerAdmin(admin.ModelAdmin):
     inlines = [ProducerExtendedAdmin]
 
 
+class WishListAdmin(admin.ModelAdmin):
+    pass
+
 admin.site.register(State,StateAdmin)
 admin.site.register(District,DistrictAdmin)
 admin.site.register(City,CityAdmin)
@@ -89,9 +92,10 @@ admin.site.register(PreferredGene,PreferredGeneAdmin)
 admin.site.register(Interest,InterestAdmin)
 admin.site.register(ProjectType,ProjectTypeAdmin)
 admin.site.register(HairType,HairTypeAdmin)
-admin.site.register(HairColour,HairColourAdmin)
+admin.site.register(HairColor,HairColorAdmin)
 admin.site.register(BodyType,BodyTypeAdmin)
 admin.site.register(EyeColor,EyeColorAdmin)
-admin.site.register(SkinColour,SkinColourAdmin)
+admin.site.register(SkinColor,SkinColorAdmin)
 admin.site.register(Artist,ArtistAdmin)
 admin.site.register(Producer,ProducerAdmin)
+admin.site.register(WishList,WishListAdmin)
