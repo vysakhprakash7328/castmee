@@ -46,6 +46,11 @@ class Skills(models.Model):
     def __str__(self):
         return self.name
 
+    class Meta:
+        verbose_name_plural = "Skills"
+
+
+
 
 class ConsiderMe(models.Model):
     name = models.CharField(
@@ -53,6 +58,9 @@ class ConsiderMe(models.Model):
     )
     def __str__(self) -> str:
         return self.name
+    class Meta:
+        verbose_name_plural = "Consider me"
+
 
 
 class AvailableFor(models.Model):
@@ -63,7 +71,7 @@ class AvailableFor(models.Model):
         return self.name
     
     class Meta:
-        verbose_name_plural = "AvailableFor"
+        verbose_name_plural = "Available For"
 
 
 class PreferredFormat(models.Model):
@@ -72,6 +80,8 @@ class PreferredFormat(models.Model):
     )
     def __str__(self) -> str:
         return self.name
+    class Meta:
+        verbose_name_plural = "Preferred Format"
 
 
 class PreferredGene(models.Model):
@@ -80,6 +90,9 @@ class PreferredGene(models.Model):
     )
     def __str__(self) -> str:
         return self.name
+    class Meta:
+        verbose_name_plural = "Preferred Gene"
+
 
 
 class Interest(models.Model):
@@ -96,6 +109,8 @@ class ProjectType(models.Model):
     )
     def __str__(self) -> str:
         return self.name
+    class Meta:
+        verbose_name_plural = "Project Type"
 
 
 class HairType(models.Model):
@@ -104,14 +119,18 @@ class HairType(models.Model):
     )
     def __str__(self) -> str:
         return self.name
+    class Meta:
+        verbose_name_plural = "Hair Type"
 
 
-class HairColour(models.Model):
+class HairColor(models.Model):
     name = models.CharField(
         max_length=30, null=True, blank=True
     )
     def __str__(self) -> str:
         return self.name
+    class Meta:
+        verbose_name_plural = "Hair Color"
 
 
 class BodyType(models.Model):
@@ -120,6 +139,9 @@ class BodyType(models.Model):
     )
     def __str__(self) -> str:
         return self.name
+    class Meta:
+        verbose_name_plural = "Body Type"
+
 
 
 class EyeColor(models.Model):
@@ -128,14 +150,18 @@ class EyeColor(models.Model):
     )
     def __str__(self) -> str:
         return self.name
+    class Meta:
+        verbose_name_plural = "Eye color"
 
 
-class SkinColour(models.Model):
+class SkinColor(models.Model):
     name = models.CharField(
         max_length=30, null=True, blank=True
     )
     def __str__(self) -> str:
         return self.name
+    class Meta:
+        verbose_name_plural = "Skin color"
 
 
 class Artist(models.Model):
@@ -216,7 +242,7 @@ class ArtistExtended(models.Model):
         null=True,blank=True
     )
     hair_color = models.ForeignKey(
-        HairColour,on_delete=models.DO_NOTHING,
+        HairColor,on_delete=models.DO_NOTHING,
         null=True,blank=True
     )
     body_type = models.ForeignKey(
@@ -228,7 +254,7 @@ class ArtistExtended(models.Model):
         null=True,blank=True
     )
     skin_color = models.ForeignKey(
-        SkinColour,on_delete=models.DO_NOTHING,
+        SkinColor,on_delete=models.DO_NOTHING,
         null=True,blank=True
     )
     current_state = models.ForeignKey(
@@ -365,6 +391,9 @@ class ArtistWorkExperience(models.Model):
         upload_to=get_project_directry, 
         null=True,blank=True
     )
+    class Meta:
+        verbose_name_plural = "Artist Work Experience"
+
 
 
 class Producer(models.Model):
@@ -394,6 +423,7 @@ class Producer(models.Model):
     created_time = models.DateTimeField(
         auto_now_add=True
     )
+    admin_approved = models.BooleanField(default = False)
     def __str__(self) -> str:
         return self.user.first_name
 
@@ -460,3 +490,15 @@ class ProducerExperience(models.Model):
     )
     def __str__(self) -> str:
         return self.producer.user.username
+    class Meta:
+        verbose_name_plural = "Producer Experience"
+
+
+class WishList(models.Model):
+    producer = models.OneToOneField(Producer,on_delete=models.CASCADE)
+    artist = models.ForeignKey(Artist,on_delete=models.CASCADE)
+    phone_view_status=models.CharField(
+        max_length=10,default = 'pending',
+        null=True,blank=True
+    )
+

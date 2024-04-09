@@ -160,6 +160,11 @@ class ProducerLogin(APIView):
                     "detail":"user is not an producer","success":False
                 },status=status.HTTP_406_NOT_ACCEPTABLE
             )
+            if producer.admin_approved == False:
+                return Response({
+                    "detail":"Please wait untill admin approves","success":False
+                },status=status.HTTP_400_BAD_REQUEST
+            )
             response_data ={
                 "username" : user.username,
                 "first_name":user.first_name,
@@ -198,10 +203,10 @@ class MasterDropdowns(APIView):
             elif user_type == 'artist':
                 response_data ={
                     'hair_type':[{obj.id:obj.name} for obj in HairType.objects.all()],
-                    'hair_color':[{obj.id:obj.name} for obj in HairColour.objects.all()],
+                    'hair_color':[{obj.id:obj.name} for obj in HairColor.objects.all()],
                     'body_type':[{obj.id:obj.name} for obj in BodyType.objects.all()],
                     'eye_color':[{obj.id:obj.name} for obj in EyeColor.objects.all()],
-                    'skin_color':[{obj.id:obj.name} for obj in SkinColour.objects.all()],
+                    'skin_color':[{obj.id:obj.name} for obj in SkinColor.objects.all()],
                     'state':[{obj.id:obj.name} for obj in State.objects.all()],
                     'city':[{obj.id:obj.name} for obj in City.objects.all()],
                     'language':[{obj.id:obj.name} for obj in Language.objects.all()],
