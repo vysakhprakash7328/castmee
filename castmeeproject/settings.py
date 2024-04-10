@@ -13,9 +13,11 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 from datetime import timedelta
 from pathlib import Path
 import os
-# from dotenv import load_dotenv
 
-# load_dotenv()
+from dotenv import load_dotenv
+
+load_dotenv()
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -31,7 +33,7 @@ SECRET_KEY = os.environ.get('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['castmeeapp.live','127.0.0.1','orca-app-rqa8f.ondigitalocean.app']
+ALLOWED_HOSTS = ['127.0.0.1','3.110.157.123']
 
 
 REST_FRAMEWORK = {
@@ -72,7 +74,6 @@ CORS_ALLOWED_ORIGINS = [
     'http://*',
     'https://*',
     'http://localhost:3000'
-    
 ]
 CORS_ALLOW_ALL_ORIGINS = True
 
@@ -149,7 +150,7 @@ USE_TZ = True
 MEDIA_URL = 'media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 STATIC_URL = 'static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
