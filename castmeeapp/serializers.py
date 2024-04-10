@@ -18,13 +18,16 @@ class ArtistExtendedSerializerView(serializers.ModelSerializer):
     phone = serializers.SerializerMethodField('get_mobile_number')
     
     def get_mobile_number(self,obj):
+        artist_flg = self.context.get("artist",False)
+        if artist_flg:
+            return obj.artist.phone
         try:
             check_permission =WishList.objects.get(artist_id=obj.artist.id)
         except WishList.DoesNotExist:
             return "Request for phone number"
         if check_permission.phone_view_status == 'pending':
             return "Waiting for approvel"
-        elif  check_permission.phone_view_status=='approved':
+        elif  check_permission.phone_view_status=='approved' :
             return obj.artist.phone
         else :
             return ""
