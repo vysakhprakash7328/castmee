@@ -45,7 +45,7 @@ class ArtistCreateAPIView(APIView):
         artist_data = {
             'phone': payload.get('phone'),
             'gender': payload.get('gender'),
-            'looking_for_work': payload.get('looking_for_work'),
+            # 'looking_for_work': payload.get('looking_for_work'),
             'date_of_birth': payload.get('date_of_birth'),
         }
         user = User.objects.create(**user_data) 
@@ -87,22 +87,23 @@ class ProducerCreateAPIView(APIView):
             'first_name': payload.get('first_name'),
             'last_name': payload.get('last_name')
         }
-        producer_data = {
-            'company_name': payload.get('company_name'),
-            'producer_type': payload.get('producer_type'),
-            'phone': payload.get('phone'),
-            'verified': payload.get('verified')
-        }
         user = User.objects.create(**user_data)
         user.set_password(password)
         user.save()
-        producer_data['user'] = user  # Set the user for the producer
-        producer = Producer.objects.create(**producer_data)
-        ProducerExtended.objects.create(producer=producer)
-        return Response({
-            'detail': 'Producer created successfully',"success":True
-        }, status=status.HTTP_201_CREATED
-        )
+        payload['user']=user.id  # Set the user for the producer
+        producer = ProducerSerializer(data = payload)
+        if producer.is_valid():
+            producer.save()
+            return Response({
+                'detail': 'Producer created successfully',"success":True
+            }, status=status.HTTP_201_CREATED
+            )
+        else:
+            return Response({
+                'detail': producer.errors,"success":False
+            }, status=status.HTTP_400_BAD_REQUEST
+            )
+            
 
 
 class ArtistLoginAPIView(APIView):
@@ -128,7 +129,7 @@ class ArtistLoginAPIView(APIView):
                 "artist_id":artist.id,#pass for data updation
                 "phone":artist.phone,
                 "gender":artist.gender,
-                "looking_for_work":artist.looking_for_work,
+                # "looking_for_work":artist.looking_for_work,
                 "date_of_birth":artist.date_of_birth,
                 "verified":artist.verified,
                 "refresh":str(refresh),
@@ -165,19 +166,7 @@ class ProducerLogin(APIView):
                     "detail":"Please wait untill admin approves","success":False
                 },status=status.HTTP_400_BAD_REQUEST
             )
-            response_data ={
-                "username" : user.username,
-                "first_name":user.first_name,
-                "email":user.email,
-                "last_name":user.last_name,
-                "producer_id":producer.id,#use this for data updation
-                "company_name":producer.company_name,
-                "producer_type":producer.producer_type,
-                "phone":producer.phone,
-                "verified":producer.verified,
-                "refresh":str(refresh),
-                "access":str(access)
-            }
+            response_data = ProducerSerializerView(producer).data
             return Response({
                 'data': response_data,"success":True
                 }, status=status.HTTP_200_OK
@@ -256,7 +245,7 @@ class ArtistExtendedUpdateAPIView(APIView):
                 "detail":"Artist not Found","success":False
             },status=status.HTTP_404_NOT_FOUND)
 
-        if 'multipart/form-data' in request.content_type:
+        if not 'multipart/form-data' in request.content_type:
             languages_known = request.data.get('languages_known',None)
             if languages_known is not None:
                 languages_= json.loads(languages_known)
@@ -410,3 +399,36 @@ class FilterApi(APIView):
             "detail":serializer.data,"success":True
         }, status=status.HTTP_200_OK
     )
+
+
+class WishlistSaver(APIView):
+    '''
+    
+    '''
+    def post(self,request):
+        '''
+        Api for adding wishlist
+        '''
+        try:
+            producer = Producer.objects.get(id= request.data.get('producer_id',None))
+        except Producer.DoesNotExist:
+            return Response({
+                "detail":"no producer found","success":False
+            },status=status.HTTP_400_BAD_REQUEST)
+        try:
+            artist = Artist.objects.get(id=request.data.get("artist_id",None))
+        except  Artist.DoesNotExist:
+            return Response({
+                "detail":"no artist found","success":False
+            },status=status.HTTP_400_BAD_REQUEST)
+        
+        validate_data = WishListSerializer(data=request.data)
+        if validate_data.is_valid():
+            validate_data.save()
+            return Response({
+                "detail":"Successfully added to wish list","success":True
+            },status=status.HTTP_200_OK)
+        else:
+            return Response({
+                "detail":"Something went wrong","success":False
+            },status=status.HTTP_400_BAD_REQUEST)

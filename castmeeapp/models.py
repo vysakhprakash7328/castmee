@@ -174,10 +174,10 @@ class Artist(models.Model):
     gender = models.CharField(
         choices=gender_choice,max_length=12
     )
-    looking_for_work = models.CharField(
-        max_length =3,null=True,blank=True,
-        choices = (("yes",'yes'),('no','no'))
-    )
+    # looking_for_work = models.CharField(
+    #     max_length =3,null=True,blank=True,
+    #     choices = (("yes",'yes'),('no','no'))
+    # )
     date_of_birth = models.DateField(
         null=True,blank=True
     )
@@ -398,32 +398,72 @@ class ArtistWorkExperience(models.Model):
 
 class Producer(models.Model):
     ROLE_CHOICES = [
-        ('channel', 'channel'),
-        ('production house', 'production House'),
-        ('casting agency', 'casting agency'),
+        ('freelancer', 'freelancer'),
+        ('company', 'company'),
         ('other', 'other'),
     ]
     user = models.OneToOneField(
         User,on_delete = models.CASCADE
     )
+    user_type = models.CharField(
+        max_length =20,null=True,blank=True,
+        choices=ROLE_CHOICES
+    )
     company_name = models.CharField(
         max_length =100,null=True,blank=True
     )
-    producer_type = models.CharField(
-        max_length = 25,choices=ROLE_CHOICES,
+    company_registration=models.CharField(
+        max_length=100,null=True,blank=True
+    )
+    company_address=models.TextField(
         null=True,blank=True
     )
-    phone = models.CharField(
+    contact_no = models.CharField(
         max_length = 12,null=True,blank=True
     )
+    offcl_mmbrship_or_assction_rltd_to_film_prdction = models.BooleanField(
+        default=False,help_text="Hold any official membership in a club or \
+              association related to any film production"
+    )
     verified = models.CharField(
-        max_length=10,default = 'pending',
+        max_length=10,default = 'pending',help_text='Email verification',
+        null=True,blank=True
+    )
+    membership_id = models.CharField(
+        max_length=200,null=True,blank=True
+    )
+    membership_name = models.CharField(
+        max_length=200,null=True,blank=True
+    )
+    reference_id = models.CharField(
+        max_length=200,null=True,blank=True
+    )
+    reference_contact_no = models.CharField(
+        max_length=20,null=True, blank=True
+    )
+    project_name = models.CharField(
+        max_length=200,null=True,blank=True
+    )
+    project_location = models.CharField(
+        max_length=100,null=True, blank=True
+    )
+    project_type = models.CharField(
+        max_length = 100,
         null=True,blank=True
     )
     created_time = models.DateTimeField(
         auto_now_add=True
     )
-    admin_approved = models.BooleanField(default = False)
+    worked_projects = models.TextField(
+        null=True,blank=True
+    )
+    tid = models.CharField(
+        max_length=100, help_text='tax identification number',
+        null=True, blank=True
+    )
+    admin_approved = models.BooleanField(
+        default = False,null=True,blank=True
+    )
     def __str__(self) -> str:
         return self.user.first_name
 
@@ -431,35 +471,6 @@ class Producer(models.Model):
 class ProducerExtended(models.Model):
     producer = models.OneToOneField(
         Producer, on_delete=models.CASCADE
-    )
-    offcl_mmbrship_or_assction_rltd_to_film_prdction = models.BooleanField(
-        default=False,help_text="Hold any official membership in a club or \
-              association related to any film production"
-    )
-    membership_name = models.CharField(
-        max_length=200,null=True,blank=True
-    )
-    membership_id = models.CharField(
-        max_length=200,null=True,blank=True
-    )
-    reference_name = models.CharField(
-        max_length=200,null=True,blank=True
-    )
-    reference_contact_no = models.CharField(
-        max_length=20,null=True, blank=True
-    )
-    company_name = models.CharField(
-        max_length=200,null=True,blank=True
-    )
-    company_reg_no=models.CharField(
-        max_length=200,null=True,blank=True
-    )
-    company_address = models.TextField(
-        null=True, blank=True
-    )
-    tid = models.CharField(
-        max_length=100, help_text='tax identification number',
-        null=True, blank=True
     )
     def __str__(self) -> str:
         return self.producer.user.username
@@ -474,16 +485,7 @@ class ProducerExperience(models.Model):
     producer = models.ForeignKey(
         Producer, on_delete=models.CASCADE
     )
-    project_name = models.CharField(
-        max_length=200,null=True, blank=True
-    )
-    project_type = models.ForeignKey(
-        ProjectType, on_delete=models.CASCADE,
-        null=True, blank=True
-    )
-    project_location = models.CharField(
-        max_length=100,null=True, blank=True
-    )
+    
     file=models.FileField(
         upload_to=get_file_directry, 
         null=True,blank=True
