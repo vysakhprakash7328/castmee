@@ -16,7 +16,13 @@ class ArtistExtendedSerializerView(serializers.ModelSerializer):
     Customized serializer for artist view
     '''
     phone = serializers.SerializerMethodField('get_mobile_number')
-    
+    user_name =serializers.ReadOnlyField(source='artist.user.username')
+    user_name =serializers.ReadOnlyField(source='artist.user.first_name')
+    user_name =serializers.ReadOnlyField(source='artist.user.username')
+    email =serializers.ReadOnlyField(source='artist.user.email')
+    gender =serializers.ReadOnlyField(source='artist.gender')
+    date_of_birth =serializers.ReadOnlyField(source='artist.date_of_birth')
+    artist_id =serializers.ReadOnlyField(source='artist.id')
     def get_mobile_number(self,obj):
         artist_flg = self.context.get("artist",False)
         if artist_flg:
