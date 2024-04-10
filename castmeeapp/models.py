@@ -468,7 +468,8 @@ class Producer(models.Model):
         null=True, blank=True
     )
     admin_approved = models.BooleanField(
-        default = False,null=True,blank=True
+        default = False,null=True,blank=True,
+        verbose_name='Approve'
     )
     def __str__(self) -> str:
         return self.user.first_name

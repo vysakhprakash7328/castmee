@@ -167,8 +167,13 @@ class ProducerLogin(APIView):
                 },status=status.HTTP_400_BAD_REQUEST
             )
             response_data = ProducerSerializerView(producer).data
+            response_data ={
+                "data":response_data,
+                "refresh": str(refresh),
+                "access": str(access),
+            }
             return Response({
-                'data': response_data,"success":True
+                "data":response_data,"success":True
                 }, status=status.HTTP_200_OK
             )
         else:
@@ -245,7 +250,7 @@ class ArtistExtendedUpdateAPIView(APIView):
                 "detail":"Artist not Found","success":False
             },status=status.HTTP_404_NOT_FOUND)
 
-        if not 'multipart/form-data' in request.content_type:
+        if  'multipart/form-data' in request.content_type:
             languages_known = request.data.get('languages_known',None)
             if languages_known is not None:
                 languages_= json.loads(languages_known)
@@ -291,7 +296,7 @@ class ArtistExtendedUpdateAPIView(APIView):
         serializer = ArtistExtendedSerializer(artist_extended, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
-            data = ArtistExtendedSerializerView(artist_extended).data
+            data = ArtistExtendedSerializerView(artist_extended,context={"artist":True}).data
             return Response({
                 "detail":data,"success":True
             },status=status.HTTP_200_OK)
