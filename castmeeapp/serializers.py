@@ -81,3 +81,14 @@ class ProducerSerializerView(serializers.ModelSerializer):
     class Meta:
         model = Producer
         fields = '__all__'
+
+
+class ArtistSerializerView(serializers.ModelSerializer):
+    username = serializers.ReadOnlyField(source= 'user.username')
+    first_name = serializers.ReadOnlyField(source= 'user.first_name')
+    last_name = serializers.ReadOnlyField(source= 'user.last_name')
+    email = serializers.ReadOnlyField(source= 'user.email')
+    class Meta:
+        model = Artist
+        fields= '__all__'
+        
