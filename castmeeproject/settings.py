@@ -13,9 +13,9 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 from datetime import timedelta
 from pathlib import Path
 import os
-from dotenv import load_dotenv
+# from dotenv import load_dotenv
 
-load_dotenv()
+# load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -71,8 +71,11 @@ MIDDLEWARE = [
 CORS_ALLOWED_ORIGINS = [
     'http://*',
     'https://*',
+    'http://localhost:3000'
     
 ]
+CORS_ALLOW_ALL_ORIGINS = True
+
 
 ROOT_URLCONF = 'castmeeproject.urls'
 
