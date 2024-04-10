@@ -51,6 +51,11 @@ class Skills(models.Model):
 
 
 
+    class Meta:
+        verbose_name_plural = "Skills"
+
+
+
 
 class ConsiderMe(models.Model):
     name = models.CharField(
