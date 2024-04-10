@@ -81,6 +81,10 @@ class ProducerAdmin(admin.ModelAdmin):
 class WishListAdmin(admin.ModelAdmin):
     pass
 
+
+class PreferredFormatAdmin(admin.ModelAdmin):
+    pass
+
 admin.site.register(State,StateAdmin)
 admin.site.register(District,DistrictAdmin)
 admin.site.register(City,CityAdmin)
@@ -99,3 +103,4 @@ admin.site.register(SkinColor,SkinColorAdmin)
 admin.site.register(Artist,ArtistAdmin)
 admin.site.register(Producer,ProducerAdmin)
 admin.site.register(WishList,WishListAdmin)
+admin.site.register(PreferredFormat,PreferredFormatAdmin)

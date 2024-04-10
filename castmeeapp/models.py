@@ -283,10 +283,11 @@ class ArtistExtended(models.Model):
         related_name = 'native_city_set'
     )
     languages_known = models.ManyToManyField(
-        Language
+        Language,blank=True
+
     )
     skills = models.ManyToManyField(
-        Skills
+        Skills,blank=True
     )
     address = models.TextField(
         null=True,blank=True
@@ -326,19 +327,19 @@ class ArtistExtended(models.Model):
         max_length=250, null=True, blank=True
     )
     consider_me_for = models.ManyToManyField(
-        ConsiderMe
+        ConsiderMe,blank=True
     )
     available_for = models.ManyToManyField(
-        AvailableFor
+        AvailableFor,blank=True
     )
     preferred_format = models.ManyToManyField(
-        PreferredFormat
+        PreferredFormat,blank=True
     )
     preferred_genre=models.ManyToManyField(
-        PreferredGene
+        PreferredGene,blank=True
     )
     interest = models.ManyToManyField(
-        Interest
+        Interest,blank=True
     )
     smoking_on_screen = models.CharField(
         max_length=3, choices=CHOICES, default='no'
