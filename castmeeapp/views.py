@@ -109,64 +109,51 @@ class Login(APIView):
     def post(self, request, format=None):
         username = request.data.get('username')
         password = request.data.get('password')
-        user_type = request.data.get('user_type',None)
-        if user_type is None:
-            return Response({
-                "detail":"provide user type","success":False
-            },status=status.HTTP_400_BAD_REQUEST)
         user = authenticate(username=username, password=password)
-        refresh = RefreshToken.for_user(user)
-        access = refresh.access_token
+
         if user is not None:
-            if user_type == 'producer':
-                try :
-                    producer = Producer.objects.get(user = user)
-                except Producer.DoesNotExist:
-                    return Response({
-                        "detail":"user is not an producer","success":False
-                    },status=status.HTTP_406_NOT_ACCEPTABLE
-                )
-                if producer.admin_approved == False:
-                    return Response({
-                        "detail":"Please wait untill admin approves","success":False
-                    },status=status.HTTP_400_BAD_REQUEST
-                )
-                response_data = ProducerSerializerView(producer).data
-                response_data ={
-                    "user_type":"producer",
-                    "data":response_data,
-                    "refresh": str(refresh),
-                    "access": str(access),
-                }
-                return Response({
-                    "data":response_data,"success":True
-                    }, status=status.HTTP_200_OK
-                )
-            elif user_type == 'artist':
-                try: 
-                    artist = Artist.objects.get(user=user)
+            refresh = RefreshToken.for_user(user)
+            access = refresh.access_token
+            producer =None
+            artist = None
+            response_data = None
+            user_type =None
+            try :
+                producer = Producer.objects.get(user = user)
+            except Producer.DoesNotExist:
+                try:
+                   artist = Artist.objects.get(user=user)
                 except Artist.DoesNotExist:
                     return Response({
-                        "detail":"user is not an artist","success":False
+                        "detail":"user is not an artist or producer ","success":False
                     },status=status.HTTP_406_NOT_ACCEPTABLE
                     )
-                response_data = ArtistSerializerView(artist).data
-                response_data ={
-                    "user_type":"artist",
-                    "data":response_data,
-                    "refresh": str(refresh),
-                    "access": str(access),
-                }
-                return Response({
-                    "data":response_data,"success":True
-                    }, status=status.HTTP_200_OK
-                )
-            else:
-                 return Response({
-                'detail': 'Invalid user type',"success":False
-            }, status=status.HTTP_400_BAD_REQUEST
-        )
+            if producer is not None:  
+                if producer.admin_approved == False:
+                        return Response({
+                            "detail":"Please wait untill admin approves","success":False
+                        },status=status.HTTP_400_BAD_REQUEST
+                    )
+                user_type = 'producer'
+                response_data = ProducerSerializerView(producer).data
 
+            elif artist is not None:
+                user_type = 'artist'
+                response_data = ArtistSerializerView(artist).data
+
+            else:
+                user_type = ''
+
+            response={
+                "user_type":user_type,
+                "data":response_data,
+                "refresh": str(refresh),
+                "access": str(access),
+            }
+            return Response({
+                "data":response,"success":True
+                }, status=status.HTTP_200_OK
+            )
         else:
             return Response({
                 'detail': 'Invalid credentials',"success":False
