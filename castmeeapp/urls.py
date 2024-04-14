@@ -15,4 +15,6 @@ urlpatterns = [
     path('get_producer_user/', ProducerExtendedAPIView.as_view(), name='ProducerExtendedAPIView'),
     path('get_artists/', FilterApi.as_view(), name='FilterApi'),
     path('filter_artists/', FilterApi.as_view(), name='filter artists'),
+    path('add_to_wishlist/', WishlistSaver.as_view(), name='wishlist'),
+    path('get_related_wishlist/', WishlistSaver.as_view(), name='get related wishlist for a producer'),
 ]

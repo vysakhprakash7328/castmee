@@ -85,6 +85,9 @@ class WishListAdmin(admin.ModelAdmin):
 class PreferredFormatAdmin(admin.ModelAdmin):
     pass
 
+
+# class Wishlis
+
 admin.site.register(State,StateAdmin)
 admin.site.register(District,DistrictAdmin)
 admin.site.register(City,CityAdmin)
