@@ -299,7 +299,7 @@ class ArtistExtendedUpdateAPIView(APIView):
             },status=status.HTTP_400_BAD_REQUEST
         )
         artist_extended = ArtistExtended.objects.get(artist_id = artist.id)
-        serialized_data = ArtistExtendedSerializerView(artist_extended).data
+        serialized_data = ArtistExtendedSerializerView(artist_extended,context={"artist":True}).data
         return Response({
             "detail":serialized_data,"success":True
             },status=status.HTTP_200_OK
@@ -369,15 +369,37 @@ class FilterApi(APIView):
     permission_classes=[IsAuthenticated]
     def get(self, request):
         artists = ArtistExtended.objects.all()
-        serializer = ArtistExtendedSerializerView(artists, many=True)
+        try:
+            producer_id = Producer.objects.get(user_id = request.user.id).id
+        except Producer.DoesNotExist:
+            return Response({
+                "detail":"requested producer not found",
+                "success":False},status=status.HTTP_400_BAD_REQUEST
+                            )
+        serializer = ArtistExtendedSerializerView(artists, many=True,context={"producer_id":producer_id})
         return Response({
             "detail":serializer.data,"success":True
         }, status=status.HTTP_200_OK
     )
     def post(self,request):
+        try:
+            producer_id = Producer.objects.get(user_id = request.user.id).id
+        except Producer.DoesNotExist:
+            return Response({
+                "detail":"requested producer not found",
+                "success":False},status=status.HTTP_400_BAD_REQUEST
+                            )
         filters = request.data
+        for key in filters.keys():
+            if key in ['username','last_name','first_name','email']:
+                filters[f'artist__user__{key}'] = filters.pop(key)
+            if key in [field.name for field in Artist._meta.get_fields()]:
+                filters [f'artist__{key}']=filters.pop(key)
+            if key == 'age' and type(filters.get(key)) == list:
+                filters[f'age__range']=filters.pop(key)
+
         artists = ArtistExtended.objects.filter(**filters)
-        serializer = ArtistExtendedSerializerView(artists, many=True)
+        serializer = ArtistExtendedSerializerView(artists, many=True,context= {"producer_id":producer_id})
         return Response({
             "detail":serializer.data,"success":True
         }, status=status.HTTP_200_OK
@@ -385,6 +407,7 @@ class FilterApi(APIView):
 
 
 class WishlistSaver(APIView):
+    permission_classes =[IsAuthenticated]
     '''
     
     '''
@@ -405,13 +428,44 @@ class WishlistSaver(APIView):
                 "detail":"no artist found","success":False
             },status=status.HTTP_400_BAD_REQUEST)
         
-        validate_data = WishListSerializer(data=request.data)
-        if validate_data.is_valid():
-            validate_data.save()
+        obj ,created = WishList.objects.get_or_create(
+            producer_id = producer.id,
+            artist_id = artist.id
+        )
+        if created:
             return Response({
                 "detail":"Successfully added to wish list","success":True
-            },status=status.HTTP_200_OK)
+            },status=status.HTTP_201_CREATED)
         else:
+            obj.delete()
             return Response({
-                "detail":"Something went wrong","success":False
-            },status=status.HTTP_400_BAD_REQUEST)
+                "detail":"successfullly removed from wishlist","success":True
+            },status=status.HTTP_200_OK)
+
+    def get(self,request):
+        '''
+        Method for getting all wishlist related to a producer
+        '''
+        user_id = request.user.id
+        try:
+            producer = Producer.objects.get(user_id = user_id)
+        except Producer.DoesNotExist:
+            return Response({
+                "detail":"user is not a producer","success":False
+            },status=status.HTTP_400_BAD_REQUEST
+            )
+        wishlist = WishList.objects.filter(
+            producer_id =producer.id
+            ).values_list('artist',flat=True).distinct()
+        print('list=',wishlist)
+        related_artists =ArtistExtended.objects.filter(
+            artist_id__in=wishlist
+        )
+        response = ArtistExtendedSerializerView(related_artists,many=True,context = {"producer_id":producer.id}).data
+
+        return Response({
+            "detail":response,"success":True
+        },status = status.HTTP_200_OK
+        )
+        
+
