@@ -12,7 +12,7 @@ import json
 from .models import *
 from django.apps import apps
 from django.db import IntegrityError 
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view,permission_classes
 import ast
 
 
@@ -409,7 +409,7 @@ class FilterApi(APIView):
 class WishlistSaver(APIView):
     permission_classes =[IsAuthenticated]
     '''
-    
+    for producer use
     '''
     def post(self,request):
         '''
@@ -457,7 +457,7 @@ class WishlistSaver(APIView):
         wishlist = WishList.objects.filter(
             producer_id =producer.id
             ).values_list('artist',flat=True).distinct()
-        print('list=',wishlist)
+
         related_artists =ArtistExtended.objects.filter(
             artist_id__in=wishlist
         )
@@ -467,5 +467,89 @@ class WishlistSaver(APIView):
             "detail":response,"success":True
         },status = status.HTTP_200_OK
         )
-        
+
+
+class WishlistApprover(APIView):
+    permission_classes =[IsAuthenticated]
+    def get(self,request):
+        '''
+        APi for viewing all request of producer (for artist)
+        '''
+        user_id = request.user.id
+        try:
+            artist = Artist.objects.get(user_id = user_id)
+        except Artist.DoesNotExist:
+            return Response({
+                "detail":"user is not a artist","success":False
+            },status=status.HTTP_400_BAD_REQUEST
+            )
+        wish_list = WishList.objects.filter(
+            artist_id = artist.id
+        )
+        response = WishListSerializerView(wish_list,many=True).data
+        return Response({
+            "detail":response,"success":True
+        },status=status.HTTP_200_OK
+        )
+    def put(self,request):
+        '''
+        for updating phone_view_status 
+        '''
+        user_id = request.user.id
+        try:
+            artist = Artist.objects.get(user_id = user_id)
+        except Artist.DoesNotExist:
+            return Response({
+                "detail":"user is not a artist","success":False
+            },status=status.HTTP_400_BAD_REQUEST
+            )
+        wishlist_id = request.data.get('wishlist_id',None)
+        try:
+            wish_list_obj = WishList.objects.get(id = wishlist_id)
+        except WishList.DoesNotExist:
+            return Response({"detail":"Wish list not found",
+                             "success":False},
+                             status=status.HTTP_400_BAD_REQUEST)
+        serialized_data = WishListSerializer(
+            wish_list_obj,data= request.data,partial = True)
+        if serialized_data.is_valid():
+            serialized_data.save()
+            if request.data.get("phone_view_status")=='approved':
+                return Response({
+                    "detail":"successfully approved","success":True},
+                    status=status.HTTP_200_OK)
+            if request.data.get("phone_view_status")=='pending':
+                return Response({
+                    "detail":"successfully changed to pending","success":True},
+                    status=status.HTTP_200_OK)
+        else:
+            return Response({
+                "detail":serialized_data.errors,"success":False
+            },status=status.HTTP_406_NOT_ACCEPTABLE
+        )
+
+
+@api_view(["get"])
+@permission_classes([IsAuthenticated])
+def artist_dropdowns(request):
+    response_data ={
+        'hair_type':[{obj.id:obj.name} for obj in HairType.objects.all()],
+        'hair_color':[{obj.id:obj.name} for obj in HairColor.objects.all()],
+        'body_type':[{obj.id:obj.name} for obj in BodyType.objects.all()],
+        'eye_color':[{obj.id:obj.name} for obj in EyeColor.objects.all()],
+        'skin_color':[{obj.id:obj.name} for obj in SkinColor.objects.all()],
+        'state':[{obj.id:obj.name} for obj in State.objects.all()],
+        'city':[{obj.id:obj.name} for obj in City.objects.all()],
+        'language':[{obj.id:obj.name} for obj in Language.objects.all()],
+        'skills':[{obj.id:obj.name} for obj in Skills.objects.all()],
+        'consider_me_for':[{obj.id:obj.name} for obj in ConsiderMe.objects.all()],
+        'available_for':[{obj.id:obj.name} for obj in AvailableFor.objects.all()],
+        'preferred_format':[{obj.id:obj.name} for obj in PreferredFormat.objects.all()],
+        'preferred_genre':[{obj.id:obj.name} for obj in PreferredGene.objects.all()],
+        'interest':[{obj.id:obj.name} for obj in Interest.objects.all()],
+    }
+    return Response({
+        "detail":response_data,"success":True
+    },status=status.HTTP_200_OK
+    )
 

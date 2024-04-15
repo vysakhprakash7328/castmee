@@ -154,3 +154,15 @@ class ArtistSerializerView(serializers.ModelSerializer):
     class Meta:
         model = Artist
         fields= '__all__'
+
+
+class WishListSerializerView(serializers.ModelSerializer):
+    '''
+     serializer for wislist serialize
+    '''
+    produer_id = serializers.ReadOnlyField(source = 'producer.id')
+    produer = serializers.ReadOnlyField(source = 'producer.user.username')
+    company_name = serializers.ReadOnlyField(source = 'producer.company_name')
+    class Meta:
+        model = WishList
+        fields = '__all__'
