@@ -511,3 +511,12 @@ class WishList(models.Model):
         null=True,blank=True
     )
 
+
+class NotificationTracker(models.Model):
+    user = models.ForeignKey(
+        User,on_delete=models.CASCADE
+    )
+    notification = models.TextField(
+        null=True,blank=True
+    )
+
