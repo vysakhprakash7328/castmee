@@ -88,14 +88,14 @@ class ArtistExtendedSerializerView(serializers.ModelSerializer):
         if artist_flg:
             return obj.artist.phone
         try:
-            check_permission =WishList.objects.get(
+            check_permission =RequestContact.objects.get(
                 artist_id=obj.artist.id,
                 producer_id = self.context.get('producer_id',None)
             )
-        except WishList.DoesNotExist:
-            return "Request for phone number"
+        except RequestContact.DoesNotExist:
+            return 0
         if check_permission.phone_view_status == 'pending':
-            return "Waiting for approvel"
+            return 1
         elif  check_permission.phone_view_status=='approved' :
             return obj.artist.phone
         else :
@@ -165,4 +165,25 @@ class WishListSerializerView(serializers.ModelSerializer):
     company_name = serializers.ReadOnlyField(source = 'producer.company_name')
     class Meta:
         model = WishList
+        fields = '__all__'
+
+
+class RequestContactSerializerView(serializers.ModelSerializer):
+    '''
+     serializer for RequestContact serialize
+    '''
+    produer_id = serializers.ReadOnlyField(source = 'producer.id')
+    produer = serializers.ReadOnlyField(source = 'producer.user.username')
+    company_name = serializers.ReadOnlyField(source = 'producer.company_name')
+    class Meta:
+        model = RequestContact
+        fields = '__all__'
+
+
+class RequestContactSerializer(serializers.ModelSerializer):
+    '''
+     serializer for RequestContact save
+    '''
+    class Meta:
+        model = RequestContact
         fields = '__all__'

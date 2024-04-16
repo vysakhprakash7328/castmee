@@ -506,6 +506,11 @@ class ProducerExperience(models.Model):
 class WishList(models.Model):
     producer = models.ForeignKey(Producer,on_delete=models.CASCADE)
     artist = models.ForeignKey(Artist,on_delete=models.CASCADE)
+
+
+class RequestContact(models.Model):
+    producer = models.ForeignKey(Producer,on_delete=models.CASCADE)
+    artist = models.ForeignKey(Artist,on_delete=models.CASCADE)
     phone_view_status=models.CharField(
         max_length=10,default = 'pending',
         null=True,blank=True
