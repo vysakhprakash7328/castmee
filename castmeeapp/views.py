@@ -469,11 +469,11 @@ class WishlistSaver(APIView):
         )
 
 
-class WishlistApprover(APIView):
+class RequestContactApprover(APIView):
     permission_classes =[IsAuthenticated]
     def get(self,request):
         '''
-        APi for viewing all request of producer (for artist)
+        APi for viewing all contact request of producer (for artist)
         '''
         user_id = request.user.id
         try:
@@ -483,10 +483,10 @@ class WishlistApprover(APIView):
                 "detail":"user is not a artist","success":False
             },status=status.HTTP_400_BAD_REQUEST
             )
-        wish_list = WishList.objects.filter(
+        request_contact = RequestContact.objects.filter(
             artist_id = artist.id
         )
-        response = WishListSerializerView(wish_list,many=True).data
+        response = RequestContactSerializer(request_contact,many=True).data
         return Response({
             "detail":response,"success":True
         },status=status.HTTP_200_OK
@@ -503,15 +503,15 @@ class WishlistApprover(APIView):
                 "detail":"user is not a artist","success":False
             },status=status.HTTP_400_BAD_REQUEST
             )
-        wishlist_id = request.data.get('wishlist_id',None)
+        request_contact_id = request.data.get('request_contact_id',None)
         try:
-            wish_list_obj = WishList.objects.get(id = wishlist_id)
-        except WishList.DoesNotExist:
-            return Response({"detail":"Wish list not found",
+            request_contact_obj = RequestContact.objects.get(id = request_contact_id)
+        except RequestContact.DoesNotExist:
+            return Response({"detail":"Contact list not found",
                              "success":False},
                              status=status.HTTP_400_BAD_REQUEST)
-        serialized_data = WishListSerializer(
-            wish_list_obj,data= request.data,partial = True)
+        serialized_data = RequestContactSerializer(
+            request_contact_obj,data= request.data,partial = True)
         if serialized_data.is_valid():
             serialized_data.save()
             if request.data.get("phone_view_status")=='approved':
@@ -553,3 +553,75 @@ def artist_dropdowns(request):
     },status=status.HTTP_200_OK
     )
 
+
+class RequestContactSave(APIView):
+    '''
+    Api for contact save
+    '''
+    permission_classes = [IsAuthenticated]
+    def post(self,request):
+        '''
+        request phone number with a single artist id or list of artist id
+        '''
+        try:
+            producer = Producer.objects.get(id= request.data.get('producer_id',None))
+        except Producer.DoesNotExist:
+            return Response({
+                "detail":"no producer found","success":False
+            },status=status.HTTP_400_BAD_REQUEST)
+        
+        artist_id  = request.data.get('artist_id',None)
+        if artist_id is not None:
+            if isinstance(artist_id,list):
+                for id in artist_id:
+                    # this will make sure already approved will not affect
+                    obj,created = RequestContact.objects.get_or_create(
+                        producer_id = producer.id,artist_id=id
+                    )
+            else:
+                obj,created = RequestContact.objects.get_or_create(
+                        producer_id = producer.id,artist_id=artist_id
+                    )
+                if not created:
+                    if obj.phone_view_status == 'pending':
+                        return Response({
+                            "detail":"Already requested","success":False
+                            },status=status.HTTP_200_OK)
+                    if obj.phone_view_status == 'approved':
+                        return Response({
+                            "detail":"Already approved by Artist","success":False
+                            },status=status.HTTP_200_OK)
+                return Response({
+                    "detail":"successfully requested","success":False}
+                    ,status=status.HTTP_200_OK)
+
+        else:
+            return Response({
+                "detail":"artist id can't be None","success":False
+            },status=status.HTTP_400_BAD_REQUEST
+        )
+    def get(self,request):
+        '''
+        Method for getting all requested contacts related to a producer
+        '''
+        user_id = request.user.id
+        try:
+            producer = Producer.objects.get(user_id = user_id)
+        except Producer.DoesNotExist:
+            return Response({
+                "detail":"user is not a producer","success":False
+            },status=status.HTTP_400_BAD_REQUEST
+            )
+        requested_contacts = RequestContact.objects.filter(
+            producer_id =producer.id
+            ).values_list('artist',flat=True).distinct()
+
+        related_artists =ArtistExtended.objects.filter(
+            artist_id__in=requested_contacts
+        )
+        response = ArtistExtendedSerializerView(related_artists,many=True,context = {"producer_id":producer.id}).data
+
+        return Response({
+            "detail":response,"success":True
+        },status = status.HTTP_200_OK
+        )
