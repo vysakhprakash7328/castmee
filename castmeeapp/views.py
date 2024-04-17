@@ -625,3 +625,14 @@ class RequestContactSave(APIView):
             "detail":response,"success":True
         },status = status.HTTP_200_OK
         )
+
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def get_notifications(request):
+    data = NotificationTracker.objects.filter(
+        user_id = request.user.id
+    ).values_list('notification',flat=True)
+    return Response({
+        "detail":data,"success":True
+    },status=status.HTTP_200_OK)

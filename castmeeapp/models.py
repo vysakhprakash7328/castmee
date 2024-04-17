@@ -1,6 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import User
 import os
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 
 
 gender_choice = (("male","male"),("female","female"),("other","other"))
@@ -525,3 +527,24 @@ class NotificationTracker(models.Model):
         null=True,blank=True
     )
 
+
+@receiver(post_save, sender=RequestContact)
+def my_model_post_save(sender, instance, created, **kwargs):
+    if created:
+        notification = f"Check it Out !!! producer {instance.producer.user.username}\
+        requested your phone number ❤️‍🔥❤️‍🔥❤️‍🔥"
+        notification_tracker = NotificationTracker.objects.create(
+            user_id=instance.artist.user.id,
+            notification=notification
+        )
+        notification_tracker.save()
+
+    if instance.phone_view_status == 'approved':
+        notification = f"Artist {instance.artist.user.username} \
+            accepted your request,you can now view their phone number"
+        notification_tracker = NotificationTracker.objects.create(
+            user_id=instance.producer.user.id,
+            notification=notification
+        )
+        notification_tracker.save()
+    
