@@ -22,4 +22,5 @@ urlpatterns = [
     path('dropdowns_for_artist/', artist_dropdowns, name='dropdowns_for_artist'),
     path('request_contact/', RequestContactSave.as_view(), name='request_contact'),
     path('view_requested_contacts/', RequestContactSave.as_view(), name='request_contact'),
+    path('get_notifications/', get_notifications, name='get_notifications'),
 ]

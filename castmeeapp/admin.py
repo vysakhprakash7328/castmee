@@ -86,7 +86,13 @@ class PreferredFormatAdmin(admin.ModelAdmin):
     pass
 
 
-# class Wishlis
+class RequestContactAdmin(admin.ModelAdmin):
+    pass
+
+
+class NotificationTrackerAdmin(admin.ModelAdmin):
+    pass
+
 
 admin.site.register(State,StateAdmin)
 admin.site.register(District,DistrictAdmin)
@@ -107,3 +113,5 @@ admin.site.register(Artist,ArtistAdmin)
 admin.site.register(Producer,ProducerAdmin)
 admin.site.register(WishList,WishListAdmin)
 admin.site.register(PreferredFormat,PreferredFormatAdmin)
+admin.site.register(RequestContact,RequestContactAdmin)
+admin.site.register(NotificationTracker,NotificationTrackerAdmin)
