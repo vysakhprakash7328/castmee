@@ -533,20 +533,20 @@ class RequestContactApprover(APIView):
 @permission_classes([IsAuthenticated])
 def artist_dropdowns(request):
     response_data ={
-        'hair_type':[{obj.id:obj.name} for obj in HairType.objects.all()],
-        'hair_color':[{obj.id:obj.name} for obj in HairColor.objects.all()],
-        'body_type':[{obj.id:obj.name} for obj in BodyType.objects.all()],
-        'eye_color':[{obj.id:obj.name} for obj in EyeColor.objects.all()],
-        'skin_color':[{obj.id:obj.name} for obj in SkinColor.objects.all()],
-        'state':[{obj.id:obj.name} for obj in State.objects.all()],
-        'city':[{obj.id:obj.name} for obj in City.objects.all()],
-        'language':[{obj.id:obj.name} for obj in Language.objects.all()],
-        'skills':[{obj.id:obj.name} for obj in Skills.objects.all()],
-        'consider_me_for':[{obj.id:obj.name} for obj in ConsiderMe.objects.all()],
-        'available_for':[{obj.id:obj.name} for obj in AvailableFor.objects.all()],
-        'preferred_format':[{obj.id:obj.name} for obj in PreferredFormat.objects.all()],
-        'preferred_genre':[{obj.id:obj.name} for obj in PreferredGene.objects.all()],
-        'interest':[{obj.id:obj.name} for obj in Interest.objects.all()],
+        'hair_type':{obj.id:obj.name for obj in HairType.objects.all() },
+        'hair_color':{obj.id:obj.name for obj in HairColor.objects.all()},
+        'body_type':{obj.id:obj.name for obj in BodyType.objects.all()},
+        'eye_color':{obj.id:obj.name for obj in EyeColor.objects.all()},
+        'skin_color':{obj.id:obj.name for obj in SkinColor.objects.all()},
+        'state':{obj.id:obj.name for obj in State.objects.all()},
+        'city':{obj.id:obj.name for obj in City.objects.all()},
+        'language':{obj.id:obj.name for obj in Language.objects.all()},
+        'skills':{obj.id:obj.name for obj in Skills.objects.all()},
+        'consider_me_for':{obj.id:obj.name for obj in ConsiderMe.objects.all()},
+        'available_for':{obj.id:obj.name for obj in AvailableFor.objects.all()},
+        'preferred_format':{obj.id:obj.name for obj in PreferredFormat.objects.all()},
+        'preferred_genre':{obj.id:obj.name for obj in PreferredGene.objects.all()},
+        'interest':{obj.id:obj.name for obj in Interest.objects.all()},
     }
     return Response({
         "detail":response_data,"success":True
