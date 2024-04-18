@@ -591,9 +591,9 @@ class RequestContactSave(APIView):
                         return Response({
                             "detail":"Already approved by Artist","success":False
                             },status=status.HTTP_200_OK)
-                return Response({
-                    "detail":"successfully requested","success":False}
-                    ,status=status.HTTP_200_OK)
+            return Response({
+                "detail":"successfully requested","success":False}
+                ,status=status.HTTP_200_OK)
 
         else:
             return Response({
