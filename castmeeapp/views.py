@@ -139,7 +139,8 @@ class Login(APIView):
 
             elif artist is not None:
                 user_type = 'artist'
-                response_data = ArtistSerializerView(artist).data
+                artist_extended = ArtistExtended.objects.get(artist_id=artist.id)
+                response_data = ArtistExtendedSerializerView(artist_extended,context={"artist":True}).data
 
             else:
                 user_type = ''
