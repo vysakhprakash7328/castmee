@@ -62,11 +62,10 @@ class ArtistExtendedSerializerView(serializers.ModelSerializer):
     """
     Customized serializer for artist view
     """
-
     phone = serializers.SerializerMethodField("get_mobile_number")
     user_name = serializers.ReadOnlyField(source="artist.user.username")
-    user_name = serializers.ReadOnlyField(source="artist.user.first_name")
-    user_name = serializers.ReadOnlyField(source="artist.user.username")
+    first_name = serializers.ReadOnlyField(source="artist.user.first_name")
+    last_name = serializers.ReadOnlyField(source="artist.user.username")
     email = serializers.ReadOnlyField(source="artist.user.email")
     gender = serializers.ReadOnlyField(source="artist.gender")
     date_of_birth = serializers.ReadOnlyField(source="artist.date_of_birth")
@@ -111,6 +110,16 @@ class ArtistExtendedSerializerView(serializers.ModelSerializer):
     class Meta:
         model = ArtistExtended
         fields = "__all__"
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        fk_fields = [field.name for field in ArtistExtended._meta.get_fields()
+                     if isinstance(field,models.ForeignKey) ==True]
+
+        for field in fk_fields:
+            if  representation.get(field,None) is None:
+                 representation[field] = None
+        return representation
 
 
 class ProducerExtendedSerializer(serializers.ModelSerializer):
