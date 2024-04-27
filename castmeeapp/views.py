@@ -435,14 +435,13 @@ class FilterApi(APIView):
                 status=status.HTTP_400_BAD_REQUEST,
             )
         filters = request.data
-        for key in filters.keys():
+        for key in list(filters.keys()):
             if key in ["username", "last_name", "first_name", "email"]:
                 filters[f"artist__user__{key}"] = filters.pop(key)
             if key in [field.name for field in Artist._meta.get_fields()]:
                 filters[f"artist__{key}"] = filters.pop(key)
             if key == "age" and type(filters.get(key)) == list:
                 filters[f"age__range"] = filters.pop(key)
-
         artists = ArtistExtended.objects.filter(**filters)
         serializer = ArtistExtendedSerializerView(
             artists, many=True, context={"producer_id": producer_id}
