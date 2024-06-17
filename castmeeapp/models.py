@@ -290,16 +290,14 @@ class ArtistExtended(models.Model):
     @property
     def profile_completion_percentage(self):
         required_fields = [
-            field.name
-            for field in self._meta.get_fields()
-            if field.name != "artist"
+            field.name for field in self._meta.get_fields() if field.name != "artist"
         ]
         filled_fields = sum(
             getattr(self, field) is not None
             for field in required_fields
             if getattr(self, field) not in ["", None]
         )
-        filled_fields = filled_fields + 7 # fields in artist
+        filled_fields = filled_fields + 7  # fields in artist
         total_fields = len(required_fields) + 7
         if total_fields != 0:
             completion_percentage = (filled_fields / total_fields) * 100

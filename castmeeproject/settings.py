@@ -56,6 +56,7 @@ INSTALLED_APPS = [
     'castmeeapp',
     'rest_framework_simplejwt',
     'corsheaders',
+    'castmeeblog'
 
 ]
 
@@ -174,3 +175,17 @@ SIMPLE_JWT = {
 }
 X_FRAME_OPTIONS = "SAMEORIGIN"
 SILENCED_SYSTEM_CHECKS = ["security.W019"]
+
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': 'redis://castmee-backend-redis-kurv0h.serverless.aps1.cache.amazonaws.com:6379',
+        'OPTIONS': {
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+            # Optionally add this to improve performance
+            'CONNECTION_POOL_KWARGS': {'max_connections': 100},
+        },
+    }
+}
+
